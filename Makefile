@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Wpedantic
+CFLAGS = -g -Wall -Wpedantic
 
 PREFIX = /usr/local
 
@@ -14,6 +14,8 @@ install: all
 	mkdir -p $(PREFIX)/share/pomo
 	cp -f bell.wav $(PREFIX)/share/pomo
 	chmod u+r $(PREFIX)/share/pomo/bell.wav
+	cp -f click.wav $(PREFIX)/share/pomo
+	chmod u+r $(PREFIX)/share/pomo/click.wav
 
 uninstall:
 	rm -f $(PREFIX)/bin/pomo

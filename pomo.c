@@ -7,15 +7,24 @@
 #include "basic.h"
 #include "config.h"
 
-bool get_new_mode = false;
-int mode = 0;
+bool get_new_mode;
+bool show_time_left;
+int mode;
 char mode_str[8];
-FILE *pid_file = NULL;
-FILE *mode_file = NULL;
-FILE *log_file = NULL;
+FILE *pid_file;
+FILE *mode_file;
+FILE *log_file;
+Sound bell;
+Sound click;
+
+// TODO use shared memory or socket
+// TODO show time left
 
 void signal_handler(int sig) {
     switch(sig) {
+        case SIGHUP:
+            show_time_left = true;
+            break;
         case SIGALRM:
             get_new_mode = true;
             break;
@@ -24,6 +33,8 @@ void signal_handler(int sig) {
             remove(pid_path);
             remove(mode_path);
             remove(log_path);
+            UnloadSound(bell);
+            UnloadSound(click);
             CloseAudioDevice();
             exit(EXIT_SUCCESS);
             break;
@@ -31,36 +42,39 @@ void signal_handler(int sig) {
 }
 
 int main(int argc, char **argv) {
-    pid_t pid, sid;
+    pid_t pid = 0, sid = 0;
 
     pid_file = fopen(pid_path, "r");
 
     if(pid_file) {
-        if(argc > 1) {
-            fscanf(pid_file, "%d\n", &pid);
+        if(argc <= 1) {
             fclose(pid_file);
-    
-            int sig = SIGALRM;
-    
-            if(!strcmp("stop", argv[1])) {
-                sig = SIGTERM;
-            } else if(strstr("focus\vbreak\vrest\vcrank", argv[1])) {
-                mode_file = fopen(mode_path, "w");
-                fprintf(mode_file, "%s\n", argv[1]);
-                fclose(mode_file);
-            } else {
-                exit(EXIT_SUCCESS);
-            }
-
-            kill(pid, sig);
             exit(EXIT_SUCCESS);
-        } else {
+        }
+
+        fscanf(pid_file, "%d\n", &pid);
+        fclose(pid_file);
+
+        int sig = SIGALRM;
+
+        if(!strcmp("stop", argv[1])) {
+            sig = SIGTERM;
+        } else if(!strcmp("mode", argv[1])) {
             mode_file = fopen(mode_path, "r");
             fscanf(mode_file, "%s\n", mode_str);
             fclose(mode_file);
             printf("%s\n", mode_str);
             exit(EXIT_SUCCESS);
+        } else if(strstr("focus\vbreak\vrest\vcrank", argv[1])) {
+            mode_file = fopen(mode_path, "w");
+            fprintf(mode_file, "%s\n", argv[1]);
+            fclose(mode_file);
+        } else {
+            exit(EXIT_SUCCESS);
         }
+
+        kill(pid, sig);
+        exit(EXIT_SUCCESS);
     }
 
     pid = fork();
@@ -91,14 +105,16 @@ int main(int argc, char **argv) {
 
     InitAudioDevice();
 
-    Sound ring = LoadSound("/usr/local/share/pomo/bell.wav");
+    bell = LoadSound("/usr/local/share/pomo/bell.wav");
+    click = LoadSound("/usr/local/share/pomo/click.wav");
 
     while(true) {
+        PlaySound(click);
         int cur_mode = mode;
         sleep(timers[mode]);
         while(!get_new_mode) {
             for(int i = 0; i < num_rings; ++i) {
-                PlaySound(ring);
+                PlaySound(bell);
                 sleep(time_between_rings);
             }
             sleep(alert_wait_time);
@@ -116,6 +132,8 @@ int main(int argc, char **argv) {
     }
 
     fclose(log_file);
+    UnloadSound(bell);
+    UnloadSound(click);
     CloseAudioDevice();
 
     return 0;
