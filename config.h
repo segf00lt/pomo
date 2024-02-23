@@ -1,8 +1,8 @@
 int timers[] = {
-    4,//40  * 60, // focus
-    1,//5   * 60, // break
-    2,//15  * 60, // rest
-    8,//120 * 60, // crank
+    40  * 60, // focus
+    5   * 60, // break
+    15  * 60, // rest
+    120 * 60, // crank
 };
 
 enum PomoCMD {
