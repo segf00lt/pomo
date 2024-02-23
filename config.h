@@ -5,17 +5,27 @@ int timers[] = {
     8,//120 * 60, // crank
 };
 
+enum PomoCMD {
+    FOCUS = 0,
+    BREAK,
+    REST,
+    CRANK,
+    PAUSE,
+    RESET,
+    MODE,
+    TIME,
+};
+
 char *timer_labels[] = {
     "focus",
     "break",
     "rest",
     "crank",
+    "pause",
 };
 
-int alert_wait_time = 5;
 int time_between_rings = 1;
 int num_rings = 3;
 
 char *pid_path = "/tmp/pomo.pid";
-char *mode_path = "/tmp/pomo.mode";
-char *log_path = "/tmp/pomo.log";
+char *fifo_path = "/tmp/pomo.fifo";

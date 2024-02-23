@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
+#include <ctype.h>
 #include <assert.h>
 
 #define SQR(x) (x*x)
