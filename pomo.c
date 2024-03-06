@@ -8,10 +8,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "basic.h"
 #include "config.h"
-
-// TODO make separate threads for timer and reading commands
 
 bool timer_pause;
 bool get_command;
