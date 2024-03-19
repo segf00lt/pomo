@@ -3,7 +3,7 @@ CFLAGS = -g -Wall -Wpedantic
 PREFIX = /usr/local
 
 all:
-	$(CC) $(CFLAGS) pomo.c -o pomo -lraylib
+	$(CC) $(CFLAGS) pomo.c -o pomo -lraylib -lm
 
 clean:
 	rm -f pomo
